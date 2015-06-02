@@ -34,15 +34,20 @@ class Board
         new_display[i][j] = "_" if self.grid[i][j] == nil
         new_display[i][j] = "R" if self.grid[i][j].is_a?(Rook)
         new_display[i][j] = "B" if self.grid[i][j].is_a?(Bishop)
-        # new_display[i][j] = "R" if self.grid[i][j].is_a?(Queen)
+        new_display[i][j] = "Q" if self.grid[i][j].is_a?(Queen)
         j +=1
       end
       i += 1
     end
 
-
     new_display.each_with_index { |row, index| puts "#{index}  #{row}" }
     return nil
+  end
+
+  def move(start_pos, end_pos)
+
+    self.grid[end_pos[0]][end_pos[1]] = self.grid[start_pos[0]][start_pos[1]]
+    self.grid[start_pos[0]][start_pos[1]] = nil
   end
 
 end
@@ -54,7 +59,7 @@ class Piece
     @board = board
     @pos = pos # this is an array (e.g. [1,2] => [x, y])
     @color = color
-    board_pos = board.grid[pos[0]][pos[1]] = self
+    board.grid[pos[0]][pos[1]] = self
   end
 end
 
@@ -109,6 +114,29 @@ end
 class Rook < Sliding_Piece
 
   DELTAS = [
+    [1,0],
+    [-1,0],
+    [0,1],
+    [0,-1]
+  ]
+
+  def initialize(board, pos, color)
+    super
+  end
+
+  def move_dirs
+    DELTAS
+  end
+
+end
+
+class Queen < Sliding_Piece
+
+  DELTAS = [
+    [1,1],
+    [1,-1],
+    [-1,1],
+    [-1,-1],
     [1,0],
     [-1,0],
     [0,1],

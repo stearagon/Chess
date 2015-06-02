@@ -16,11 +16,15 @@ class Board
 
   def fill_board
     # Fills board with all pieces in starting position
-    bh1 = Bishop.new(self, [0, 0], :black)
-    bh2 = Bishop.new(self, [3, 3], :black)
-    self.grid[0][0] = bh1
-    self.grid[3][3] = bh2
+    bh1 = Bishop.new(game1.board, [0, 0], :black)
+    bh2 = Bishop.new(game1.board, [7, 7], :black)
+    game1.board.grid[0][0] = bh1
+    game1.board.grid[7][7] = bh2
   end
+
+  # def inspect
+  #   {}
+  # end
 
 end
 
@@ -31,6 +35,7 @@ class Piece
     @board = board
     @pos = pos # this is an array (e.g. [1,2] => [x, y])
     @color = color
+    board_pos = board.grid[pos[0]][pos[1]] = self
   end
 end
 
@@ -48,7 +53,8 @@ class Sliding_Piece < Piece
 
       until !pos_x.between?(0,7) ||
             !pos_y.between?(0,7) ||
-            !self.board.grid[pos_x][pos_y].nil?
+            (!self.board.grid[pos_x][pos_y].nil? &&
+            self.board.grid[pos_x][pos_y].color == self.color)
         moves << [pos_x, pos_y]
         pos_x += x
         pos_y += y
@@ -56,10 +62,6 @@ class Sliding_Piece < Piece
     end
 
     moves
-
-  end
-
-  def selected_moves
 
   end
 

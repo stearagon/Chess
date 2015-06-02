@@ -7,6 +7,10 @@ class Game
 end
 
 class Board
+  PIECE_SYMBOLS = {
+
+  }
+
   attr_accessor :grid
   def initialize
     @grid = Array.new(8) do
@@ -18,6 +22,27 @@ class Board
     # Fills board with all pieces in starting position
     bh1 = Bishop.new(game1.board, [0, 0], :black)
     bh2 = Bishop.new(game1.board, [6, 6], :white)
+  end
+
+  def display
+    new_display = Array.new(8) { Array.new(8) { "" } }
+
+    i = 0
+    while i < 8
+      j = 0
+      while j < 8
+        new_display[i][j] = "_" if self.grid[i][j] == nil
+        new_display[i][j] = "R" if self.grid[i][j].is_a?(Rook)
+        new_display[i][j] = "B" if self.grid[i][j].is_a?(Bishop)
+        # new_display[i][j] = "R" if self.grid[i][j].is_a?(Queen)
+        j +=1
+      end
+      i += 1
+    end
+
+
+    new_display.each_with_index { |row, index| puts "#{index}  #{row}" }
+    return nil
   end
 
 end
@@ -69,6 +94,25 @@ class Bishop < Sliding_Piece
     [1,-1],
     [-1,1],
     [-1,-1]
+  ]
+
+  def initialize(board, pos, color)
+    super
+  end
+
+  def move_dirs
+    DELTAS
+  end
+
+end
+
+class Rook < Sliding_Piece
+
+  DELTAS = [
+    [1,0],
+    [-1,0],
+    [0,1],
+    [0,-1]
   ]
 
   def initialize(board, pos, color)

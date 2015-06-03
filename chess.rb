@@ -9,112 +9,82 @@ class Game
 end
 
 class Board
+
+  DIMENSIONS = 8
+
   PIECE_SYMBOLS = {
     King => "K",
     Queen => "Q",
     Bishop => "b",
     Rook => "r",
     Knight => "k",
-    Pawn => "p"
-
+    Pawn => "p",
+    NilClass => "___"
   }
-
-  duped_board[i][j] = "___" if self.grid[i][j] == nil
-  duped_board[i][j] = "r" if self.grid[i][j].is_a?(Rook)
-  duped_board[i][j] = "b" if self.grid[i][j].is_a?(Bishop)
-  duped_board[i][j] = "Q" if self.grid[i][j].is_a?(Queen)
-  duped_board[i][j] = "k" if self.grid[i][j].is_a?(Knight)
-  duped_board[i][j] = "K" if self.grid[i][j].is_a?(King)
-  duped_board[i][j] = "p" if self.grid[i][j].is_a?(Pawn)
 
   attr_accessor :grid
   def initialize(grid = nil)
-    @grid = grid || Array.new(8) do
-      Array.new(8) { nil }
+    @grid = grid || Array.new(DIMENSIONS) do
+      Array.new(DIMENSIONS) { nil }
     end
   end
 
   def fill_board
-    # create white pieces
-    q_w = Queen.new(self, [7,3], :white)
-    r1_w = Rook.new(self, [7,0], :white)
-    r2_w = Rook.new(self, [7,7], :white)
-    b1_w = Bishop.new(self, [7,2], :white)
-    b2_w = Bishop.new(self, [7,5], :white)
-    kn1_w = Knight.new(self, [7,1], :white)
-    kn2_w = Knight.new(self, [7,6], :white)
-    k_w = King.new(self, [7,4], :white)
-    p1_w = Pawn.new(self, [6,0], :white)
-    p2_w = Pawn.new(self, [6,1], :white)
-    p3_w = Pawn.new(self, [6,2], :white)
-    p4_w = Pawn.new(self, [6,3], :white)
-    p5_w = Pawn.new(self, [6,4], :white)
-    p6_w = Pawn.new(self, [6,5], :white)
-    p7_w = Pawn.new(self, [6,6], :white)
-    p8_w = Pawn.new(self, [6,7], :white)
-    # create black pieces
-    q_b = Queen.new(self, [0,3], :black)
-    r1_b = Rook.new(self, [0,0], :black)
-    r2_b = Rook.new(self, [0,7], :black)
-    b1_b = Bishop.new(self, [0,2], :black)
-    b2_b = Bishop.new(self, [0,5], :black)
-    kn1_b = Knight.new(self, [0,1], :black)
-    kn2_b = Knight.new(self, [0,6], :black)
-    k_b = King.new(self, [0,4], :black)
-    p1_b = Pawn.new(self, [1,0], :black)
-    p2_b = Pawn.new(self, [1,1], :black)
-    p3_b = Pawn.new(self, [1,2], :black)
-    p4_b = Pawn.new(self, [1,3], :black)
-    p5_b = Pawn.new(self, [1,4], :black)
-    p6_b = Pawn.new(self, [1,5], :black)
-    p7_b = Pawn.new(self, [1,6], :black)
-    p8_b = Pawn.new(self, [1,7], :black)
+    (0...DIMENSIONS).each do |col|
+      Pawn.new(self, [Pawn::BLACK_START_ROW,col], :black)
+      Pawn.new(self, [Pawn::WHITE_START_ROW,col], :white)
+    end
+
+    start_row = [ [0, :white] , [DIMENSIONS-1, :black] ]
+
+    start_row.each do |row,color|
+      Queen.new(self, [row,3], color)
+      Rook.new(self, [row,0], color)
+      Rook.new(self, [row,7], color)
+      Bishop.new(self, [row,2], color)
+      Bishop.new(self, [row,5], color)
+      Knight.new(self, [row,1], color)
+      Knight.new(self, [row,6], color)
+      King.new(self, [row,4], color)
+    end
 
     display
   end
 
   def display
-    duped_board = Array.new(8) { Array.new(8) { "" } }
+    duped_board = Array.new(DIMENSIONS) { Array.new(DIMENSIONS) { "" } }
 
-    i = 0
-    while i < 8
-      j = 0
-      while j < 8
-        duped_board[i][j] = "___" if self.grid[i][j] == nil
-        duped_board[i][j] = "r" if self.grid[i][j].is_a?(Rook)
-        duped_board[i][j] = "b" if self.grid[i][j].is_a?(Bishop)
-        duped_board[i][j] = "Q" if self.grid[i][j].is_a?(Queen)
-        duped_board[i][j] = "k" if self.grid[i][j].is_a?(Knight)
-        duped_board[i][j] = "K" if self.grid[i][j].is_a?(King)
-        duped_board[i][j] = "p" if self.grid[i][j].is_a?(Pawn)
-
+    (0...DIMENSIONS).each do |i|
+      (0...DIMENSIONS).each do |j|
+        duped_board[i][j] = PIECE_SYMBOLS[self.grid[i][j].class]
         unless self.grid[i][j].nil?
-          duped_board[i][j].concat("_w") if self.grid[i][j].color == :white
-          duped_board[i][j].concat("_b") if self.grid[i][j].color == :black
+          duped_board[i][j] += self.grid[i][j].color == :white ? "_w" : "_b"
         end
-
-        j +=1
       end
-      i += 1
     end
 
-    puts "\n\n\n\n"
-    puts "      a      b      c      d      e      f      g      h"
-    puts "      0      1      2      3      4      5      6      7"
+    grid_labels_top
     duped_board.each_with_index { |row, index| puts "#{index}  #{row}" }
-    puts "\n      0      1      2      3      4      5      6      7"
-    puts "\n\n\n\n"
+    grid_labels_bottom
     return nil
   end
 
+  def grid_labels_top
+    puts "\n\n\n\n"
+    puts "      a      b      c      d      e      f      g      h"
+    puts "      0      1      2      3      4      5      6      7"
+    puts "\n"
+  end
+
+  def grid_labels_bottom
+    puts "\n      0      1      2      3      4      5      6      7"
+    puts "\n\n\n\n"
+  end
+
   def move(start_pos, end_pos)
-    unless self.grid[start_pos[0]][start_pos[1]].moves.include?(end_pos)
+    unless self.grid[start_pos[0]][start_pos[1]].valid_moves.include?(end_pos)
       raise "Not a legal move."
     end
-
-    # unless self.grid[start_pos[0]][start_pos[1]].valid_moves.include?(end_pos)
-    #   raise "That move would put you in check and is not allowed."
-    # end
 
     self.grid[end_pos[0]][end_pos[1]] = self.grid[start_pos[0]][start_pos[1]]
     self.grid[start_pos[0]][start_pos[1]] = nil
@@ -144,16 +114,12 @@ class Board
   end
 
   def deep_dup
-    duped_board = Array.new(8) { Array.new(8) { "" } }
+    duped_board = Array.new(DIMENSIONS) { Array.new(DIMENSIONS) { "" } }
 
-    i = 0
-    while i < 8
-      j = 0
-      while j < 8
+    (0...DIMENSIONS).each do |i|
+      (0...DIMENSIONS).each do |j|
         duped_board[i][j] = self.grid[i][j].nil? ? nil : self.grid[i][j].dup
-        j +=1
       end
-      i += 1
     end
 
     duped_board = Board.new(duped_board)
@@ -164,8 +130,7 @@ class Board
       end
     end
 
-    return duped_board
-
+    duped_board
   end
 
   def checkmate?(color)
@@ -178,9 +143,9 @@ class Board
         end
       end
     end
+
     true
   end
-
 
 end
 
@@ -197,7 +162,6 @@ class Piece
   def valid_moves
       potential_moves = self.moves
       valid_moves = []
-      # debugger
       potential_moves.each do |move|
           duped_board = self.board.deep_dup
           duped_board.move(self.pos, move)
@@ -218,23 +182,26 @@ class Sliding_Piece < Piece
     moves =[]
 
     self.move_dirs.each do |x , y|
-      pos_x = self.pos[0] + x
-      pos_y = self.pos[1] + y
+      pos_x, pos_y = self.pos[0] + x, self.pos[1] + y
 
-      until !pos_x.between?(0,7) ||
-            !pos_y.between?(0,7) ||
-            (!self.board.grid[pos_x][pos_y].nil? &&
-            self.board.grid[pos_x][pos_y].color == self.color)
+      until
+        !pos_x.between?(0,Board::DIMENSIONS-1) ||
+        !pos_y.between?(0,Board::DIMENSIONS-1) ||
+        (!self.board.grid[pos_x][pos_y].nil? &&
+          self.board.grid[pos_x][pos_y].color == self.color)
+
         moves << [pos_x, pos_y]
-        break if !self.board.grid[pos_x][pos_y].nil? &&
-        self.board.grid[pos_x][pos_y].color != self.color
+
+        break if
+          !self.board.grid[pos_x][pos_y].nil? &&
+            self.board.grid[pos_x][pos_y].color != self.color
+
         pos_x += x
         pos_y += y
       end
     end
 
     moves
-
   end
 
 end
@@ -248,10 +215,9 @@ class Stepping_Piece < Piece
     moves =[]
 
     self.move_dirs.each do |x , y|
-      pos_x = self.pos[0] + x
-      pos_y = self.pos[1] + y
+      pos_x, pos_y = self.pos[0] + x, self.pos[1] + y
 
-      unless !pos_x.between?(0,7) || !pos_y.between?(0,7) ||
+      unless !pos_x.between?(0,Board::DIMENSIONS-1) || !pos_y.between?(0,Board::DIMENSIONS-1) ||
             (!self.board.grid[pos_x][pos_y].nil? &&
             self.board.grid[pos_x][pos_y].color == self.color)
         moves << [pos_x, pos_y]

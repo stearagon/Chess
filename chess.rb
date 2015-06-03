@@ -94,6 +94,12 @@ class Board
     nil
   end
 
+  def move!(start_pos, end_pos)
+    self.grid[end_pos[0]][end_pos[1]] = self.grid[start_pos[0]][start_pos[1]]
+    self.grid[start_pos[0]][start_pos[1]] = nil
+    self.grid[end_pos[0]][end_pos[1]].pos = [ end_pos[0], end_pos[1] ]
+  end
+
   def in_check?(color)
     king_pos = nil
 
@@ -164,7 +170,7 @@ class Piece
       valid_moves = []
       potential_moves.each do |move|
           duped_board = self.board.deep_dup
-          duped_board.move(self.pos, move)
+          duped_board.move!(self.pos, move)
           valid_moves << move unless duped_board.in_check?(self.color)
       end
 

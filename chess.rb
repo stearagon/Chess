@@ -6,6 +6,54 @@ class Game
   def initialize
     @board = Board.new
   end
+
+  def play
+    puts "\n\nWelcome to Chess."
+    board.fill_board
+    self.board.display
+
+    current_player = :white
+
+    until board.checkmate?(current_player)
+      begin
+        puts "\nPlayer #{current_player.to_s.capitalize}, enter position of piece you'd like to move."
+        puts "e.g. to move piece at row 1 column 1 enter \"11\""
+        start_pos = gets.chomp
+        start_row = start_pos[0].to_i
+        start_col =  start_pos[1].to_i
+
+        if !board.grid[start_row][start_col].nil? &&
+          board.grid[start_row][start_col].color != current_player
+          raise StandardError.new "Not your piece, fool!"
+        end
+
+        puts "\nPlayer #{current_player.to_s.capitalize}, enter position of piece you'd like to move."
+        puts "e.g. to move piece to row 2 column 1 enter \"21\""
+        end_pos = gets.chomp
+        end_row = end_pos[0].to_i
+        end_col =  end_pos[1].to_i
+
+
+        self.board.move( [start_row,start_col] ,
+                    [end_row,end_col] )
+      rescue
+        puts "\nInvalid move. Try again."
+        retry
+      end
+
+      current_player = switch_player(current_player)
+    end
+
+    current_player = switch_player(current_player)
+    puts "#{current_player.to_s.capitalize} wins"
+
+  end
+
+  def switch_player(current_player)
+    return current_player == :white ? :black : :white
+  end
+
+
 end
 
 class Board
@@ -35,7 +83,7 @@ class Board
       Pawn.new(self, [Pawn::WHITE_START_ROW,col], :white)
     end
 
-    start_row = [ [0, :white] , [DIMENSIONS-1, :black] ]
+    start_row = [ [0, :black] , [DIMENSIONS-1, :white] ]
 
     start_row.each do |row,color|
       Queen.new(self, [row,3], color)
@@ -106,12 +154,14 @@ class Board
     self.grid.each do |row|
       row.each do |tile|
         king_pos = tile.pos if tile.is_a?(King) && tile.color == color
+        break if king_pos
       end
     end
 
     self.grid.each do |row|
       row.each do |tile|
-        return true if !tile.nil? && tile.moves.include?(king_pos)
+        return true if !tile.nil? && tile.moves.include?(king_pos) &&
+          tile.color != color
       end
     end
 
@@ -140,6 +190,7 @@ class Board
   end
 
   def checkmate?(color)
+    # debugger
     if self.in_check?(color)
       self.grid.each do |row|
         row.each do |tile|
@@ -148,9 +199,11 @@ class Board
           end
         end
       end
+
+      return true
     end
 
-    true
+    false
   end
 
 end

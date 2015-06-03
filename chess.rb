@@ -45,6 +45,9 @@ class Board
   end
 
   def move(start_pos, end_pos)
+    unless self.grid[start_pos[0]][start_pos[1]].moves.include?(end_pos)
+      raise "Not a legal move."
+    end
 
     self.grid[end_pos[0]][end_pos[1]] = self.grid[start_pos[0]][start_pos[1]]
     self.grid[start_pos[0]][start_pos[1]] = nil

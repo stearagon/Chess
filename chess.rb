@@ -21,6 +21,7 @@ class Board
   end
 
   def fill_board
+    # create white pieces
     q_w = Queen.new(self, [7,3], :white)
     r1_w = Rook.new(self, [7,0], :white)
     r2_w = Rook.new(self, [7,7], :white)
@@ -37,7 +38,7 @@ class Board
     p6_w = Pawn.new(self, [6,5], :white)
     p7_w = Pawn.new(self, [6,6], :white)
     p8_w = Pawn.new(self, [6,7], :white)
-
+    # create black pieces
     q_b = Queen.new(self, [0,3], :black)
     r1_b = Rook.new(self, [0,0], :black)
     r2_b = Rook.new(self, [0,7], :black)
@@ -97,8 +98,23 @@ class Board
     self.grid[end_pos[0]][end_pos[1]].pos = [ end_pos[0], end_pos[1] ]
   end
 
-  def in_check?
-    
+  def in_check?(color)
+    king_pos = nil
+
+    self.grid.each do |row|
+      row.each do |tile|
+        king_pos = tile.pos if tile.is_a?(King) && tile.color == color
+      end
+    end
+
+    self.grid.each do |row|
+      row.each do |tile|
+        return true if !tile.nil? && tile.moves.include?(king_pos)
+      end
+    end
+
+    false
+
   end
 
 end

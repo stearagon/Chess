@@ -14,8 +14,8 @@ class Board
   }
 
   attr_accessor :grid
-  def initialize
-    @grid = Array.new(8) do
+  def initialize(grid = nil)
+    @grid = grid || Array.new(8) do
       Array.new(8) { nil }
     end
   end
@@ -60,23 +60,23 @@ class Board
   end
 
   def display
-    new_display = Array.new(8) { Array.new(8) { "" } }
+    duped_board = Array.new(8) { Array.new(8) { "" } }
 
     i = 0
     while i < 8
       j = 0
       while j < 8
-        new_display[i][j] = "___" if self.grid[i][j] == nil
-        new_display[i][j] = "r" if self.grid[i][j].is_a?(Rook)
-        new_display[i][j] = "b" if self.grid[i][j].is_a?(Bishop)
-        new_display[i][j] = "Q" if self.grid[i][j].is_a?(Queen)
-        new_display[i][j] = "k" if self.grid[i][j].is_a?(Knight)
-        new_display[i][j] = "K" if self.grid[i][j].is_a?(King)
-        new_display[i][j] = "p" if self.grid[i][j].is_a?(Pawn)
+        duped_board[i][j] = "___" if self.grid[i][j] == nil
+        duped_board[i][j] = "r" if self.grid[i][j].is_a?(Rook)
+        duped_board[i][j] = "b" if self.grid[i][j].is_a?(Bishop)
+        duped_board[i][j] = "Q" if self.grid[i][j].is_a?(Queen)
+        duped_board[i][j] = "k" if self.grid[i][j].is_a?(Knight)
+        duped_board[i][j] = "K" if self.grid[i][j].is_a?(King)
+        duped_board[i][j] = "p" if self.grid[i][j].is_a?(Pawn)
 
         unless self.grid[i][j].nil?
-          new_display[i][j].concat("_w") if self.grid[i][j].color == :white
-          new_display[i][j].concat("_b") if self.grid[i][j].color == :black
+          duped_board[i][j].concat("_w") if self.grid[i][j].color == :white
+          duped_board[i][j].concat("_b") if self.grid[i][j].color == :black
         end
 
         j +=1
@@ -84,7 +84,7 @@ class Board
       i += 1
     end
 
-    new_display.each_with_index { |row, index| puts "#{index}  #{row}" }
+    duped_board.each_with_index { |row, index| puts "#{index}  #{row}" }
     return nil
   end
 
@@ -117,6 +117,23 @@ class Board
 
   end
 
+  def deep_dup
+    duped_board = Array.new(8) { Array.new(8) { "" } }
+
+    i = 0
+    while i < 8
+      j = 0
+      while j < 8
+        duped_board[i][j] = self.grid[i][j].nil? ? nil : self.grid[i][j].dup
+        j +=1
+      end
+      i += 1
+    end
+
+    return Board.new(duped_board)
+  end
+
+
 end
 
 class Piece
@@ -128,6 +145,13 @@ class Piece
     @color = color
     board.grid[pos[0]][pos[1]] = self
   end
+
+  def valid_moves
+      next_moves = self.moves
+
+
+  end
+
 end
 
 class Sliding_Piece < Piece

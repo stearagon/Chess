@@ -223,17 +223,19 @@ class Stepping_Piece < Piece
     self.move_dirs.each do |x , y|
       pos_x, pos_y = self.pos[0] + x, self.pos[1] + y
 
-      unless !pos_x.between?(0,Board::DIMENSIONS-1) || !pos_y.between?(0,Board::DIMENSIONS-1) ||
-            (!self.board.grid[pos_x][pos_y].nil? &&
-            self.board.grid[pos_x][pos_y].color == self.color)
+      unless
+        !pos_x.between?(0,Board::DIMENSIONS-1) ||
+        !pos_y.between?(0,Board::DIMENSIONS-1) ||
+        (!self.board.grid[pos_x][pos_y].nil? &&
+          self.board.grid[pos_x][pos_y].color == self.color)
+
         moves << [pos_x, pos_y]
+
       end
     end
 
     moves
-
   end
-
 
 end
 
@@ -257,7 +259,6 @@ class Pawn < Piece
   end
 
   def moves
-    #debugger
     moves =[]
 
     color_constant = self.color == :black ?  BLACK_START_ROW : WHITE_START_ROW
@@ -273,9 +274,13 @@ class Pawn < Piece
 
 
 
-        unless !pos_x.between?(0,7) || !pos_y.between?(0,7) ||
-              (!self.board.grid[pos_x][pos_y].nil?)
+        unless
+          !pos_x.between?(0,7) ||
+          !pos_y.between?(0,7) ||
+          (!self.board.grid[pos_x][pos_y].nil?)
+
           moves << [pos_x, pos_y]
+
         end
       end
 
@@ -287,9 +292,14 @@ class Pawn < Piece
         end
           pos_y = self.pos[1] + y
 
-        unless !pos_x.between?(0,7) || !pos_y.between?(0,7) ||
-              (!self.board.grid[pos_x][pos_y].nil?) || self.pos[0] != color_constant
+        unless
+          !pos_x.between?(0,7) ||
+          !pos_y.between?(0,7) ||
+          (!self.board.grid[pos_x][pos_y].nil?) ||
+            self.pos[0] != color_constant
+
           moves << [pos_x, pos_y]
+
         end
       end
 
@@ -301,13 +311,16 @@ class Pawn < Piece
         end
           pos_y = self.pos[1] + y
 
-        if pos_x.between?(0,7) && pos_y.between?(0,7) &&
-              (!self.board.grid[pos_x][pos_y].nil?) &&
-              (self.board.grid[pos_x][pos_y].color != self.color)
+        if
+          pos_x.between?(0,7) &&
+          pos_y.between?(0,7) &&
+          !self.board.grid[pos_x][pos_y].nil? &&
+          self.board.grid[pos_x][pos_y].color != self.color
+
           moves << [pos_x, pos_y]
+
         end
       end
-
 
     moves
 

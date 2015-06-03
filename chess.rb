@@ -10,8 +10,22 @@ end
 
 class Board
   PIECE_SYMBOLS = {
+    King => "K",
+    Queen => "Q",
+    Bishop => "b",
+    Rook => "r",
+    Knight => "k",
+    Pawn => "p"
 
   }
+
+  duped_board[i][j] = "___" if self.grid[i][j] == nil
+  duped_board[i][j] = "r" if self.grid[i][j].is_a?(Rook)
+  duped_board[i][j] = "b" if self.grid[i][j].is_a?(Bishop)
+  duped_board[i][j] = "Q" if self.grid[i][j].is_a?(Queen)
+  duped_board[i][j] = "k" if self.grid[i][j].is_a?(Knight)
+  duped_board[i][j] = "K" if self.grid[i][j].is_a?(King)
+  duped_board[i][j] = "p" if self.grid[i][j].is_a?(Pawn)
 
   attr_accessor :grid
   def initialize(grid = nil)
@@ -84,7 +98,12 @@ class Board
       i += 1
     end
 
+    puts "\n\n\n\n"
+    puts "      a      b      c      d      e      f      g      h"
+    puts "      0      1      2      3      4      5      6      7"
     duped_board.each_with_index { |row, index| puts "#{index}  #{row}" }
+    puts "\n      0      1      2      3      4      5      6      7"
+    puts "\n\n\n\n"
     return nil
   end
 
@@ -93,9 +112,16 @@ class Board
       raise "Not a legal move."
     end
 
+    # unless self.grid[start_pos[0]][start_pos[1]].valid_moves.include?(end_pos)
+    #   raise "That move would put you in check and is not allowed."
+    # end
+
     self.grid[end_pos[0]][end_pos[1]] = self.grid[start_pos[0]][start_pos[1]]
     self.grid[start_pos[0]][start_pos[1]] = nil
     self.grid[end_pos[0]][end_pos[1]].pos = [ end_pos[0], end_pos[1] ]
+
+    display
+    nil
   end
 
   def in_check?(color)
@@ -130,7 +156,29 @@ class Board
       i += 1
     end
 
-    return Board.new(duped_board)
+    duped_board = Board.new(duped_board)
+
+    duped_board.grid.each do |row|
+      row.each do |tile|
+        tile.board = duped_board if !tile.nil?
+      end
+    end
+
+    return duped_board
+
+  end
+
+  def checkmate?(color)
+    if self.in_check?(color)
+      self.grid.each do |row|
+        row.each do |tile|
+          if !tile.nil? && tile.color == color
+            return false if tile.valid_moves.length > 0
+          end
+        end
+      end
+    end
+    true
   end
 
 
@@ -147,9 +195,16 @@ class Piece
   end
 
   def valid_moves
-      next_moves = self.moves
+      potential_moves = self.moves
+      valid_moves = []
+      # debugger
+      potential_moves.each do |move|
+          duped_board = self.board.deep_dup
+          duped_board.move(self.pos, move)
+          valid_moves << move unless duped_board.in_check?(self.color)
+      end
 
-
+    valid_moves
   end
 
 end
@@ -171,7 +226,8 @@ class Sliding_Piece < Piece
             (!self.board.grid[pos_x][pos_y].nil? &&
             self.board.grid[pos_x][pos_y].color == self.color)
         moves << [pos_x, pos_y]
-        break if !self.board.grid[pos_x][pos_y].nil? && self.board.grid[pos_x][pos_y].color != self.color
+        break if !self.board.grid[pos_x][pos_y].nil? &&
+        self.board.grid[pos_x][pos_y].color != self.color
         pos_x += x
         pos_y += y
       end
